@@ -2,6 +2,7 @@ import os
 import base64
 from flask import Flask, request
 from flask_cors import CORS
+from fileManagment import getHeadersFile
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -28,9 +29,7 @@ def upload():
     lastChunk = args_chunkIndex == args_totalChunks - 1
 
     data_bytes = base64.b64decode(data)
-    print(type(data), ' ->\n ', data_bytes)
     data_str = data_bytes.decode()
-    print(type(data_str), ' ->\n ', data_str)
 
     mode = 'w'
     if firstChunk: mode = 'w'
@@ -39,12 +38,23 @@ def upload():
     data_file = open(filename, mode)
     n = data_file.write(data_str)
     data_file.close()
-    
-    print(type(n), ' ->\n ', n)
 
     return {
         'message': 'Upload file successfully'
     }, 200
+
+@app.route('/headers', methods=["GET"])
+def headers():
+    args = request.args
+
+    file_name = 'data'
+    args_ext = args['ext']
+
+    header_list = getHeadersFile(file_name, args_ext)
+    return {
+        'header': header_list
+    }, 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
