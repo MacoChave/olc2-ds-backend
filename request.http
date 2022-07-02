@@ -31,3 +31,26 @@ Content-Type: application/json
         "time": "2025"
     }
 }
+
+###
+
+POST http://127.0.0.1:5000/analize HTTP/1.1
+Content-Type: application/json
+
+{
+    "ext": "csv",
+    "config": {
+        "idxAlgorithm": 0,
+        "algorithm": "Regresión polinomial",
+        "option": [
+            "Graficar puntos",
+            "Función de tendencia",
+            "Predicción de tendencia"
+        ]
+    },
+    "params": {
+        "dependiente": "Solola",
+        "independiente": "Ano",
+        "time": "2025"
+    }
+}
