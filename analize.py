@@ -28,22 +28,22 @@ def linearRegression(x_field, y_field, pred, options, file_ext):
     intercept = regr.intercept_
     r2 = r2_score(y_true, y_pred)
     error = mean_squared_error(y_true, y_pred)
-    # print('COEF -> ', coef)
-    # print('INTERCEPT -> ', intercept)
-    # print('R2 -> ', r2)
-    # print('ERROR -> ', error)
+    print('COEF -> ', coef)
+    print('INTERCEPT -> ', intercept)
+    print('R2 -> ', r2)
+    print('ERROR -> ', error)
 
     # FUNCIÓN DE TENDENCIA
     trend_match = [s for s in options if "Función de tendencia" in s]
     if (len(trend_match) != 0):
         func_tendencia = f'y(x) = {coef} x + {intercept}'
-        # print('FUNCTION -> ', func_tendencia)
+        print('FUNCTION -> ', func_tendencia)
 
     # PREDICCION
     pred_match = [s for s in options if "Predicción de tendencia" in s]
     if (len(pred_match) != 0):
         pred_tendencia = regr.predict([[int(pred)]])[0]
-        # print('PREDICT -> ', pred_tendencia)
+        print('PREDICT -> ', pred_tendencia)
 
     # GRAFICA
     plot_match = [s for s in options if "Predicción de tendencia" in s]
@@ -54,8 +54,10 @@ def linearRegression(x_field, y_field, pred, options, file_ext):
     if (len(trend_match) != 0 or len(plot_match) != 0):
         plt.savefig('grafico.jpg')
         with open("grafico.jpg", "rb") as img_file:
+            print('Imagen a Base64...')
             str_image = base64.b64encode(img_file.read())
     
+    print('Analisis finalizado...')
     return [
         func_tendencia,
         pred_tendencia,

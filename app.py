@@ -59,6 +59,7 @@ def headers():
 @app.route('/analize', methods=['POST'])
 def analize():
     data = request.json
+    print(data)
     ext = data['ext']
     config_algorithm = data['config']['algorithm']
     config_option = data['config']['option']
@@ -67,11 +68,12 @@ def analize():
     param_pred = data['params']['time']
 
     if config_algorithm == 'Regresión lineal': 
+        print('Regresion lineal...')
         res = linearRegression(param_x, param_y, param_pred, config_option, ext)
         return jsonify({
-            'Funcion': res[0],
-            'Prediction': res[1],
-            'ImageB64': str(res[2])
+            'func': res[0],
+            'pred': res[1],
+            'imageB64': str(res[2])
         })
     elif config_algorithm == 'Regresión polinomial': 
         polinomialRegression(param_x, param_y, param_pred, config_option, ext)
@@ -81,10 +83,12 @@ def analize():
         decisionTree(ext)
     elif config_algorithm == 'Redes neuronales':
         neuronalNetwork(ext)
-
-    return {
-        'message': 'Analize successfully'
-    }, 200
+    else:
+        return jsonify({
+            'func': '',
+            'pred': 0.0,
+            'imageB64': ''
+        })
 
 if __name__ == '__main__':
     app.run(debug=True)
