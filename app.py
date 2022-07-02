@@ -1,6 +1,6 @@
 import os
 import base64
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from fileManagment import getHeadersFile
 from analize import linearRegression, polinomialRegression, gaussianNB, decisionTree, neuronalNetwork
@@ -67,7 +67,12 @@ def analize():
     param_pred = data['params']['time']
 
     if config_algorithm == 'Regresión lineal': 
-        linearRegression(param_x, param_y, param_pred, config_option, ext)
+        res = linearRegression(param_x, param_y, param_pred, config_option, ext)
+        return jsonify({
+            'Funcion': res[0],
+            'Prediction': res[1],
+            'ImageB64': str(res[2])
+        })
     elif config_algorithm == 'Regresión polinomial': 
         polinomialRegression(param_x, param_y, param_pred, config_option, ext)
     elif config_algorithm == 'Clasificador gaussiano': 
