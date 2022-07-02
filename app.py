@@ -3,6 +3,7 @@ import base64
 from flask import Flask, request
 from flask_cors import CORS
 from fileManagment import getHeadersFile
+from analize import linearRegression, polinomialRegression, gaussianNB, decisionTree, neuronalNetwork
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -55,6 +56,30 @@ def headers():
         'header': header_list
     }, 200
 
+@app.route('/analize', methods=['POST'])
+def analize():
+    data = request.json
+    ext = data['ext']
+    config_algorithm = data['config']['algorithm']
+    config_option = data['config']['option']
+    param_y = data['params']['dependiente']
+    param_x = data['params']['independiente']
+    param_pred = data['params']['time']
+
+    if config_algorithm == 'Regresión lineal': 
+        linearRegression(param_x, param_y, param_pred, config_option, ext)
+    elif config_algorithm == 'Regresión polinomial': 
+        polinomialRegression(param_x, param_y, param_pred, config_option, ext)
+    elif config_algorithm == 'Clasificador gaussiano': 
+        gaussianNB(ext)
+    elif config_algorithm == 'Clasificador de árboles de decisión':
+        decisionTree(ext)
+    elif config_algorithm == 'Redes neuronales':
+        neuronalNetwork(ext)
+
+    return {
+        'message': 'Analize successfully'
+    }, 200
 
 if __name__ == '__main__':
     app.run(debug=True)
