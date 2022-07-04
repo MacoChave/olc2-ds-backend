@@ -6,7 +6,10 @@ import base64
 from pandas.core.frame import DataFrame
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn import preprocessing
 
 from fileManagment import getDataFrameFile
 
@@ -49,14 +52,18 @@ def linearRegression(x_field, y_field, pred, options, file_ext):
         print('PREDICT -> ', pred_tendencia)
 
     # GRAFICA
+    ax = plt.subplot()
     plot_match = [s for s in options if "Predicción de tendencia" in s]
     if (len(plot_match) != 0):
-        plt.scatter(x, y_true, color = '#1594AD')
+        ax.scatter(x, y_true, color = '#1594AD')
     if (len(trend_match) != 0):
-        plt.plot(x, y_pred, color = '#AD5203')
+        ax.plot(x, y_pred, color = '#AD5203')
     if (len(trend_match) != 0 or len(plot_match) != 0):
         try:
             print('Guardar imagen..')
+            plt.title(f'Regresion lineal. Predicción a {pred}')
+            plt.xlabel(x_field)
+            plt.ylabel(y_field)
             plt.savefig('grafico.jpg')
             print('Imagen a base 64...')
             with open("grafico.jpg", "rb") as img_file:
@@ -148,14 +155,18 @@ def polinomialRegression(x_field, y_field, pred, options, file_ext):
         print('PREDICT -> ', pred_tendencia)
 
     # GRAFICA
+    ax = plt.subplot()
     plot_match = [s for s in options if "Predicción de tendencia" in s]
     if (len(plot_match) != 0):
-        plt.scatter(x, y_true, color = '#1594AD')
+        ax.scatter(x, y_true, color = '#1594AD')
     if (len(trend_match) != 0):
-        plt.plot(x, y_pred, color = '#AD5203')
+        ax.plot(x, y_pred, color = '#AD5203')
     if (len(trend_match) != 0 or len(plot_match) != 0):
         try:
             print('Guardar imagen..')
+            plt.title(f'Regresion polinomial de grado {len(coef)}. Predicción a {pred}')
+            plt.xlabel(x_field)
+            plt.ylabel(y_field)
             plt.savefig('grafico.jpg')
             print('Imagen a base 64...')
             with open("grafico.jpg", "rb") as img_file:
@@ -171,15 +182,61 @@ def polinomialRegression(x_field, y_field, pred, options, file_ext):
         str_image
     ]
 
-def gaussianNB(file_ext):
-    df = getDataFrameFile('data', file_ext)
-    print(df.head())
-    pass
+def getFeatures(df, y_field):
+    df = df.drop([y_field], axis = 1)
+    field_match = [s for s in df.head() if 'NO' in s]
+    if len(field_match) == 1: df.drop(['NO'], axis = 1)
+    headers = df.head()
+    columns = headers.columns
 
-def decisionTree(file_ext):
+    fields = []
+    le = preprocessing.LabelEncoder()
+    for col in columns:
+        col_list = df[col].tolist()
+        col_encoded = le.fit_transform(col_list)
+        fields.append(col_encoded)
+    
+    features = list(zip(*fields))
+    return [features, le]
+
+def gaussianNB(y_field, pred, file_ext):
     df = getDataFrameFile('data', file_ext)
-    print(df.head())
-    pass
+    
+    y_true = df[y_field]
+
+    [features, le] = getFeatures(df, y_field)
+    label = le.fit_transform(y_true)
+
+    model = GaussianNB()
+    model.fit(features, label)
+
+    val = []
+    for p in pred:
+        val.append(int(p))
+
+    predict = model.predict([val])[0]
+    print(predict)
+    
+    return predict
+
+def decisionTree(y_field, file_ext):
+    df = getDataFrameFile('data', file_ext)
+    str_image = ''
+
+    y_true = df[y_field]
+
+    [features, le] = getFeatures(df, y_field)
+    label = le.fit_transform(y_true)
+
+    clf = DecisionTreeClassifier()
+    clf.fit(features, label)
+    plot_tree(clf, filled = True)
+    plt.savefig('grafico.jpg')
+    print('Imagen a base 64...')
+    with open("grafico.jpg", "rb") as img_file:
+        str_image = base64.b64encode(img_file.read())
+    
+    return str_image
 
 def neuronalNetwork(file_ext):
     df = getDataFrameFile('data', file_ext)

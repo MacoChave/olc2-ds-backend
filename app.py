@@ -64,8 +64,8 @@ def analize():
     ext = data['ext']
     config_algorithm = data['config']['algorithm']
     config_option = data['config']['option']
-    param_y = data['params']['dependiente']
     param_x = data['params']['independiente']
+    param_y = data['params']['dependiente']
     param_pred = data['params']['time']
 
     if config_algorithm == 'Regresión lineal': 
@@ -85,9 +85,19 @@ def analize():
             'imageB64': str(res[2])
         })
     elif config_algorithm == 'Clasificador gaussiano': 
-        gaussianNB(ext)
+        res = gaussianNB(param_y, param_pred, ext)
+        return jsonify({
+            'func': '',
+            'pred': int(res),
+            'imageB64': ''
+        })
     elif config_algorithm == 'Clasificador de árboles de decisión':
-        decisionTree(ext)
+        res = decisionTree(param_y, ext)
+        return jsonify({
+            'func': '',
+            'pred': '',
+            'imageB64': res
+        })
     elif config_algorithm == 'Redes neuronales':
         neuronalNetwork(ext)
     else:

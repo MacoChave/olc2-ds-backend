@@ -54,3 +54,66 @@ Content-Type: application/json
         "time": "2025"
     }
 }
+
+###
+
+POST http://127.0.0.1:5000/analize HTTP/1.1
+Content-Type: application/json
+
+{
+    "ext": "csv",
+    "config": {
+        "idxAlgorithm": 0,
+        "algorithm": "Clasificador gaussiano",
+        "option": [
+            "Graficar puntos"
+        ]
+    },
+    "params": {
+        "dependiente": "",
+        "independiente": "play",
+        "time": [0, 0, 0, 0]
+    }
+}
+
+###
+
+POST http://127.0.0.1:5000/analize HTTP/1.1
+Content-Type: application/json
+
+{
+    "ext": "csv",
+    "config": {
+        "idxAlgorithm": 0,
+        "algorithm": "Clasificador de árboles de decisión",
+        "option": [
+            "Graficar puntos"
+        ]
+    },
+    "params": {
+        "dependiente": "",
+        "independiente": "play",
+        "time": ""
+    }
+}
+
+###
+
+POST http://127.0.0.1:5000/analize HTTP/1.1
+Content-Type: application/json
+
+{
+    "ext": "csv",
+    "config": {
+        "idxAlgorithm": 0,
+        "algorithm": "Redes neuronales",
+        "option": [
+            "Graficar puntos"
+        ]
+    },
+    "params": {
+        "dependiente": "",
+        "independiente": "",
+        "time": ""
+    }
+}
