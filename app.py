@@ -96,7 +96,7 @@ def analize():
         return jsonify({
             'func': '',
             'pred': '',
-            'imageB64': res
+            'imageB64': str(res)
         })
     elif config_algorithm == 'Redes neuronales':
         neuronalNetwork(ext)
