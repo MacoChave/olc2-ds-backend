@@ -41,7 +41,7 @@ def linearRegression(x_field, y_field, pred, options, file_ext):
     # FUNCIÓN DE TENDENCIA
     trend_match = [s for s in options if "Función de tendencia" in s]
     if (len(trend_match) != 0):
-        func_tendencia = f'y(x) = {coef} x + {intercept}'
+        func_tendencia = f'y = {coef} x + {intercept}'
         print('FUNCTION -> ', func_tendencia)
 
     # PREDICCION
@@ -61,7 +61,7 @@ def linearRegression(x_field, y_field, pred, options, file_ext):
     if (len(trend_match) != 0 or len(plot_match) != 0):
         try:
             print('Guardar imagen..')
-            plt.title(f'Regresion lineal. Predicción a {pred}')
+            plt.title(f'Regresion lineal. Predicción a {pred}.')
             plt.xlabel(x_field)
             plt.ylabel(y_field)
             plt.savefig('grafico.jpg')
@@ -136,7 +136,7 @@ def polinomialRegression(x_field, y_field, pred, options, file_ext):
     # FUNCIÓN DE TENDENCIA
     trend_match = [s for s in options if "Función de tendencia" in s]
     if (len(trend_match) != 0):
-        func_tendencia = f'f(y) = {intercept}'
+        func_tendencia = f'y = {intercept}'
         for i in range(1, len(coef)):
             func_tendencia = f'{func_tendencia} + ({coef[i * -1]}) x^{i}'
         print('FUNCTION -> ', func_tendencia)
@@ -164,7 +164,7 @@ def polinomialRegression(x_field, y_field, pred, options, file_ext):
     if (len(trend_match) != 0 or len(plot_match) != 0):
         try:
             print('Guardar imagen..')
-            plt.title(f'Regresion polinomial de grado {len(coef)}. Predicción a {pred}')
+            plt.title(f'Regresion polinomial de grado {len(coef) - 1}. Predicción a {pred}.')
             plt.xlabel(x_field)
             plt.ylabel(y_field)
             plt.savefig('grafico.jpg')
@@ -238,7 +238,31 @@ def decisionTree(y_field, file_ext):
     
     return str_image
 
-def neuronalNetwork(file_ext):
+def neuronalNetwork(y_field, layers_size, iteraciones, file_ext):
     df = getDataFrameFile('data', file_ext)
-    print(df.head())
-    pass
+    
+    x = df.drop(y_field, axis = 1)
+    y = df[y_field]
+
+    from sklearn.model_selection import train_test_split
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y)
+
+    from sklearn.preprocessing import StandardScaler
+
+    scaler = StandardScaler()
+    scaler.fit(x_train)
+    x_train = scaler.transform(x_train)
+    x_test = scaler.transform(x_test)
+
+    from sklearn.neural_network import MLPClassifier
+    
+    hidden_layer_sizes = tuple(layers_size)
+    model = MLPClassifier(hidden_layer_sizes = hidden_layer_sizes, max_iter = iteraciones)
+    model.fit(x_train, y_train)
+
+    pred = model.predict(x_test)
+
+    from sklearn.metrics import classification_report, confusion_matrix
+
+    confuse_mat = confusion_matrix(y_test, pred)
