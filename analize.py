@@ -187,10 +187,11 @@ def polinomialRegression(x_field, y_field, pred, options, file_ext):
 
 def getFeatures(df, y_field):
     df = df.drop([y_field], axis = 1)
-    field_match = [s for s in df.head() if 'NO' in s]
-    if len(field_match) == 1: df.drop(['NO'], axis = 1)
+    field_match = [s for s in df.head() if "NO" in s]
+    if len(field_match) == 1: df = df.drop(['NO'], axis = 1)
     headers = df.head()
     columns = headers.columns
+    print(columns)
 
     fields = []
     le = LabelEncoder()
