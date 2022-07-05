@@ -6,10 +6,13 @@ import base64
 from pandas.core.frame import DataFrame
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn import preprocessing
 
 from fileManagment import getDataFrameFile
 
@@ -190,7 +193,7 @@ def getFeatures(df, y_field):
     columns = headers.columns
 
     fields = []
-    le = preprocessing.LabelEncoder()
+    le = LabelEncoder()
     for col in columns:
         col_list = df[col].tolist()
         col_encoded = le.fit_transform(col_list)
@@ -215,11 +218,12 @@ def gaussianNB(y_field, pred, file_ext):
         val.append(int(p))
 
     predict = model.predict([val])[0]
+    # predict = predict.replace('\'', '').replace(' ', '')
     print(predict)
     
     return predict
 
-def decisionTree(y_field, file_ext):
+def decisionTree(y_field, pred, file_ext):
     df = getDataFrameFile('data', file_ext)
     str_image = ''
 
@@ -236,33 +240,36 @@ def decisionTree(y_field, file_ext):
     with open("grafico.jpg", "rb") as img_file:
         str_image = base64.b64encode(img_file.read())
     
-    return str_image
+    predict = clf.predict([pred])[0]
+    # predict = predict[0].replace('\'', '').replace('\"', '')
+    
+    return [predict, str_image]
 
-def neuronalNetwork(y_field, layers_size, iteraciones, file_ext):
+def neuronalNetwork(y_field, layers_size, iteraciones, pred, file_ext):
     df = getDataFrameFile('data', file_ext)
     
-    x = df.drop(y_field, axis = 1)
     y = df[y_field]
 
-    from sklearn.model_selection import train_test_split
+    [features, le] = getFeatures(df, y_field)
+    label = le.fit_transform(y)
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y)
+    x_train, x_test, y_train, y_test = train_test_split(features, label, test_size = 0.2)
 
-    from sklearn.preprocessing import StandardScaler
-
-    scaler = StandardScaler()
-    scaler.fit(x_train)
-    x_train = scaler.transform(x_train)
+    scaler = StandardScaler().fit(x_train)
     x_test = scaler.transform(x_test)
 
-    from sklearn.neural_network import MLPClassifier
-    
-    hidden_layer_sizes = tuple(layers_size)
-    model = MLPClassifier(hidden_layer_sizes = hidden_layer_sizes, max_iter = iteraciones)
+    layers = []
+    for l in layers_size:
+        layers.append(int(l))
+    hidden_layer_sizes = tuple(layers)
+    model = MLPClassifier(hidden_layer_sizes = hidden_layer_sizes, max_iter = int(iteraciones), solver = 'lbfgs', verbose = 10, tol = 0.000001, random_state = 0)
     model.fit(x_train, y_train)
 
-    pred = model.predict(x_test)
+    val = []
+    for p in pred:
+        val.append(int(p))
+    predict = model.predict([val])[0]
+    # predict = predict[0].replace('\'', '').replace('\"', '')
+    print(predict)
 
-    from sklearn.metrics import classification_report, confusion_matrix
-
-    confuse_mat = confusion_matrix(y_test, pred)
+    return predict

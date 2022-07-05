@@ -88,30 +88,31 @@ def analize():
         res = gaussianNB(param_y, param_pred, ext)
         return jsonify({
             'func': '',
-            'pred': int(res),
+            'pred': str(res),
             'imageB64': ''
         })
     elif config_algorithm == 'Clasificador de árboles de decisión':
-        res = decisionTree(param_y, ext)
+        res = decisionTree(param_y, param_pred, ext)
         return jsonify({
             'func': '',
-            'pred': '',
-            'imageB64': str(res)
+            'pred': str(res[0]),
+            'imageB64': str(res[1])
         })
     elif config_algorithm == 'Redes neuronales':
-        neuronalNetwork(ext)
+        param_layer = data['params']['layers']
+        param_iter = data['params']['iteracion']
+        res = neuronalNetwork(param_y, param_layer, param_iter, param_pred, ext)
+        return jsonify({
+            'func': '',
+            'pred': str(res),
+            'imageB64': ''
+        })
     else:
         return jsonify({
             'func': '',
             'pred': 0.0,
             'imageB64': ''
         })
-    # except:
-    #     return jsonify({
-    #         'func': '',
-    #         'pred': 0.0,
-    #         'imageB64': ''
-    #     })
 
 if __name__ == '__main__':
     app.run(debug=True)
