@@ -58,61 +58,68 @@ def headers():
 
 @app.route('/analize', methods=['POST'])
 def analize():
-    # try:
-    data = request.json
-    print(data)
-    ext = data['ext']
-    config_algorithm = data['config']['algorithm']
-    config_option = data['config']['option']
-    param_x = data['params']['independiente']
-    param_y = data['params']['dependiente']
-    param_pred = data['params']['time']
+    try:
+        data = request.json
+        print(data)
+        ext = data['ext']
+        config_algorithm = data['config']['algorithm']
+        config_option = data['config']['option']
+        param_x = data['params']['independiente']
+        param_y = data['params']['dependiente']
+        param_pred = data['params']['time']
 
-    if config_algorithm == 'Regresión lineal': 
-        print('Regresión lineal...')
-        res = linearRegression(param_x, param_y, param_pred, config_option, ext)
+        if config_algorithm == 'Regresión lineal': 
+            print('Regresión lineal...')
+            res = linearRegression(param_x, param_y, param_pred, config_option, ext)
+            return jsonify({
+                'func': res[0],
+                'pred': res[1],
+                'imageB64': str(res[2])
+            })
+        elif config_algorithm == 'Regresión polinomial': 
+            print('Regresión polinomial...')
+            res = polinomialRegression(param_x, param_y, param_pred, config_option, ext)
+            return jsonify({
+                'func': res[0],
+                'pred': res[1],
+                'imageB64': str(res[2])
+            })
+        elif config_algorithm == 'Clasificador gaussiano': 
+            res = gaussianNB(param_y, param_pred, ext)
+            return jsonify({
+                'func': '',
+                'pred': str(res),
+                'imageB64': ''
+            })
+        elif config_algorithm == 'Clasificador de árboles de decisión':
+            res = decisionTree(param_y, param_pred, ext)
+            return jsonify({
+                'func': '',
+                'pred': str(res[0]),
+                'imageB64': str(res[1])
+            })
+        elif config_algorithm == 'Redes neuronales':
+            param_layer = data['params']['layers']
+            param_iter = data['params']['iteracion']
+            res = neuronalNetwork(param_y, param_layer, param_iter, param_pred, ext)
+            return jsonify({
+                'func': '',
+                'pred': str(res),
+                'imageB64': ''
+            })
+        else:
+            return jsonify({
+                'func': '',
+                'pred': 0.0,
+                'imageB64': ''
+            })
+    except:
         return jsonify({
-            'func': res[0],
-            'pred': res[1],
-            'imageB64': str(res[2])
-        })
-    elif config_algorithm == 'Regresión polinomial': 
-        print('Regresión polinomial...')
-        res = polinomialRegression(param_x, param_y, param_pred, config_option, ext)
-        return jsonify({
-            'func': res[0],
-            'pred': res[1],
-            'imageB64': str(res[2])
-        })
-    elif config_algorithm == 'Clasificador gaussiano': 
-        res = gaussianNB(param_y, param_pred, ext)
-        return jsonify({
-            'func': '',
-            'pred': str(res),
-            'imageB64': ''
-        })
-    elif config_algorithm == 'Clasificador de árboles de decisión':
-        res = decisionTree(param_y, param_pred, ext)
-        return jsonify({
-            'func': '',
-            'pred': str(res[0]),
-            'imageB64': str(res[1])
-        })
-    elif config_algorithm == 'Redes neuronales':
-        param_layer = data['params']['layers']
-        param_iter = data['params']['iteracion']
-        res = neuronalNetwork(param_y, param_layer, param_iter, param_pred, ext)
-        return jsonify({
-            'func': '',
-            'pred': str(res),
-            'imageB64': ''
-        })
-    else:
-        return jsonify({
-            'func': '',
-            'pred': 0.0,
-            'imageB64': ''
-        })
+                'error': 1,
+                'func': '',
+                'pred': 0.0,
+                'imageB64': ''
+            })
 
 if __name__ == '__main__':
     app.run(debug=True)

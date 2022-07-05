@@ -208,18 +208,17 @@ def gaussianNB(y_field, pred, file_ext):
     y_true = df[y_field]
 
     [features, le] = getFeatures(df, y_field)
-    label = le.fit_transform(y_true)
+    # label = le.fit_transform(y_true)
 
     model = GaussianNB()
-    model.fit(features, label)
+    model.fit(features, y_true)
 
     val = []
     for p in pred:
         val.append(int(p))
 
-    predict = model.predict([val])[0]
-    # predict = predict.replace('\'', '').replace(' ', '')
-    print(predict)
+    predict = model.predict([val])
+    predict = predict[0]
     
     return predict
 
@@ -230,30 +229,30 @@ def decisionTree(y_field, pred, file_ext):
     y_true = df[y_field]
 
     [features, le] = getFeatures(df, y_field)
-    label = le.fit_transform(y_true)
+    # label = le.fit_transform(y_true)
 
     clf = DecisionTreeClassifier()
-    clf.fit(features, label)
+    clf.fit(features, y_true)
     plot_tree(clf, filled = True)
     plt.savefig('grafico.jpg')
     print('Imagen a base 64...')
     with open("grafico.jpg", "rb") as img_file:
         str_image = base64.b64encode(img_file.read())
     
-    predict = clf.predict([pred])[0]
-    # predict = predict[0].replace('\'', '').replace('\"', '')
+    predict = clf.predict([pred])
+    predict = predict[0]
     
     return [predict, str_image]
 
 def neuronalNetwork(y_field, layers_size, iteraciones, pred, file_ext):
     df = getDataFrameFile('data', file_ext)
     
-    y = df[y_field]
+    y_true = df[y_field]
 
     [features, le] = getFeatures(df, y_field)
-    label = le.fit_transform(y)
+    # label = le.fit_transform(y_true)
 
-    x_train, x_test, y_train, y_test = train_test_split(features, label, test_size = 0.2)
+    x_train, x_test, y_train, y_test = train_test_split(features, y_true, test_size = 0.2)
 
     scaler = StandardScaler().fit(x_train)
     x_test = scaler.transform(x_test)
@@ -268,8 +267,7 @@ def neuronalNetwork(y_field, layers_size, iteraciones, pred, file_ext):
     val = []
     for p in pred:
         val.append(int(p))
-    predict = model.predict([val])[0]
-    # predict = predict[0].replace('\'', '').replace('\"', '')
-    print(predict)
+    predict = model.predict([val])
+    predict = predict[0]
 
     return predict
